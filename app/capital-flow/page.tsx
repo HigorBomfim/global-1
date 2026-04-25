@@ -1,12 +1,13 @@
 import AtmosphericBackground from './components/AtmosphericBackground'
 import CapitalFlowGlobe from './components/CapitalFlowGlobe'
+import Dashboard from './components/Dashboard'
 
 export default function CapitalFlowPage() {
   return (
     <main>
       <AtmosphericBackground>
         <CapitalFlowGlobe />
-        {/* Layers 3-8 will be inserted here */}
+        <Dashboard />
       </AtmosphericBackground>
     </main>
   )
