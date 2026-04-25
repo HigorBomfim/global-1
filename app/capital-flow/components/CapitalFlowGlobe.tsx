@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import * as THREE from 'three'
 import { HUBS, type Hub } from '../data/hubs'
 import { ARCS_DATA } from '../data/arcs'
+import { createMarkerElement } from './markers'
 
 // react-globe.gl is WebGL-only and must NOT be SSR'd
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false })
@@ -28,18 +29,10 @@ export default function CapitalFlowGlobe() {
     [],
   )
 
-  // Basic point dots — placeholder visualisation until Layer 5 swaps
-  // these for HTML markers with icons
-  const pointsData = useMemo(
-    () =>
-      HUBS.map((h) => ({
-        lat: h.lat,
-        lng: h.lng,
-        size: h.tier === 1 ? 0.7 : 0.5,
-        color: h.color,
-      })),
-    [],
-  )
+  // Layer 5 — HTML markers (one DOM node per hub) replace the
+  // placeholder spheres from Layer 3. The data is passed straight from
+  // HUBS so each marker has access to colour + icon + tier.
+  const htmlData = useMemo(() => HUBS.map((h) => ({ ...h })), [])
 
   // Track viewport size so the canvas matches the screen
   useEffect(() => {
@@ -147,15 +140,19 @@ export default function CapitalFlowGlobe() {
           arcDashAnimateTime={2000}
           arcDashInitialGap={(d: any) => d.dashOffset}
           arcsTransitionDuration={0}
-          // Layer 3 — hubs as basic markers + pulsing rings.
-          // Layer 5 will replace points with HTML markers (icons, halos).
-          pointsData={pointsData}
-          pointLat={(d: any) => d.lat}
-          pointLng={(d: any) => d.lng}
-          pointAltitude={0.01}
-          pointRadius={(d: any) => d.size}
-          pointColor={(d: any) => d.color}
-          pointResolution={12}
+          // Layer 5 — HTML markers (rounded pin + icon + halos) per hub
+          htmlElementsData={htmlData}
+          htmlLat={(d: any) => d.lat}
+          htmlLng={(d: any) => d.lng}
+          htmlAltitude={0.02}
+          htmlElement={(d: any) => createMarkerElement(d as Hub)}
+          htmlElementVisibilityModifier={(el: HTMLElement, isVisible: boolean) => {
+            // Hide markers on the back side of the globe so they don't
+            // bleed through the surface
+            el.style.opacity = isVisible ? '1' : '0'
+            el.style.pointerEvents = isVisible ? 'auto' : 'none'
+            el.style.transition = 'opacity 200ms ease-out'
+          }}
           ringsData={ringsData}
           ringLat={(d: any) => d.lat}
           ringLng={(d: any) => d.lng}
