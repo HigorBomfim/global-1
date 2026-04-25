@@ -34,20 +34,47 @@ export default function CapitalFlowGlobe() {
   // HUBS so each marker has access to colour + icon + tier.
   const htmlData = useMemo(() => HUBS.map((h) => ({ ...h })), [])
 
-  // Track viewport size so the canvas matches the screen
+  // Track viewport size so the canvas matches the screen.
+  // Throttled with rAF — resizing fires hundreds of events otherwise.
   useEffect(() => {
-    const update = () => setSize({ w: window.innerWidth, h: window.innerHeight })
+    let frame = 0
+    const update = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() =>
+        setSize({ w: window.innerWidth, h: window.innerHeight }),
+      )
+    }
     update()
     window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  // Pause the auto-rotate when the tab is hidden — reclaims CPU/GPU
+  // for whatever the user is actually looking at, and the globe
+  // resumes seamlessly when they come back.
+  useEffect(() => {
+    const onVisibility = () => {
+      const controls = globeEl.current?.controls?.()
+      if (!controls) return
+      controls.autoRotate = !document.hidden
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [])
 
   // Once the globe instance exists, configure controls + lights + camera
   useEffect(() => {
     if (!globeEl.current || size.w === 0) return
 
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
     const controls = globeEl.current.controls()
-    controls.autoRotate = true
+    controls.autoRotate = !reduceMotion
     controls.autoRotateSpeed = 0.4
     controls.enableZoom = true
     controls.enableDamping = true

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import StarField from './StarField'
 
 export default function AtmosphericBackground({
@@ -7,6 +8,14 @@ export default function AtmosphericBackground({
 }: {
   children?: React.ReactNode
 }) {
+  // Scale star count to viewport so phones don't render 320 absolutely
+  // positioned twinkling DOM nodes.
+  const [starCount, setStarCount] = useState(160)
+  useEffect(() => {
+    const w = window.innerWidth
+    setStarCount(w < 640 ? 120 : w < 1280 ? 220 : 320)
+  }, [])
+
   return (
     <div
       className="relative w-full h-screen overflow-hidden"
@@ -48,7 +57,7 @@ export default function AtmosphericBackground({
       />
 
       {/* Star field */}
-      <StarField count={320} />
+      <StarField count={starCount} />
 
       {/* Vignette to bias attention to center */}
       <div

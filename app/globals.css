@@ -38,6 +38,18 @@ body {
   background: #000;
 }
 
+/* Respect users who opt out of motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Twinkling stars */
 @keyframes star-twinkle {
   0%, 100% { opacity: var(--max-opacity, 0.8); }
@@ -130,6 +142,9 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Containment: paint/layout/style isolated so card repaints don't
+     dirty the rest of the page (matters with backdrop-filter). */
+  contain: layout paint style;
 }
 
 .glass-card::before {
