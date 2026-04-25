@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import * as THREE from 'three'
 import { HUBS, type Hub } from '../data/hubs'
+import { ARCS_DATA } from '../data/arcs'
 
 // react-globe.gl is WebGL-only and must NOT be SSR'd
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false })
@@ -129,6 +130,23 @@ export default function CapitalFlowGlobe() {
           showAtmosphere={true}
           atmosphereColor="#7744ff"
           atmosphereAltitude={0.18}
+          // Layer 4 — particle-stream arcs.
+          // Each connection is rendered as 6 overlapping arcs with
+          // varied altitude / stroke / dash phase, producing a
+          // braided ribbon rather than a single line.
+          arcsData={ARCS_DATA}
+          arcStartLat={(d: any) => d.startLat}
+          arcStartLng={(d: any) => d.startLng}
+          arcEndLat={(d: any) => d.endLat}
+          arcEndLng={(d: any) => d.endLng}
+          arcColor={(d: any) => d.color}
+          arcAltitude={(d: any) => d.altitude}
+          arcStroke={(d: any) => d.stroke}
+          arcDashLength={0.4}
+          arcDashGap={0.1}
+          arcDashAnimateTime={2000}
+          arcDashInitialGap={(d: any) => d.dashOffset}
+          arcsTransitionDuration={0}
           // Layer 3 — hubs as basic markers + pulsing rings.
           // Layer 5 will replace points with HTML markers (icons, halos).
           pointsData={pointsData}
