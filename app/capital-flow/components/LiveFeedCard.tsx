@@ -20,7 +20,9 @@ function MiniStat({
         <span className="text-emerald-400 text-[9px] font-mono">↗</span>
       </div>
       <p className="text-white/40 text-[9px] tracking-[0.2em] font-mono">{label}</p>
-      <p className="text-white text-base font-bold leading-tight mt-0.5">{value}</p>
+      <p className="num-hero text-white text-base font-bold leading-tight mt-0.5">
+        {value}
+      </p>
       <p className="text-white/30 text-[9px] font-mono mt-0.5">{change}</p>
     </div>
   )
@@ -60,7 +62,7 @@ export default function LiveFeedCard() {
           TOTAL INFLOW [24H]
           <span className="text-emerald-400 ml-auto">▲ +134%</span>
         </p>
-        <p className="text-5xl font-extrabold text-white mt-2 leading-none tracking-tight">
+        <p className="num-hero text-5xl font-extrabold text-white mt-2 leading-none">
           $7.42<span className="text-cyan-400">B</span>
         </p>
 

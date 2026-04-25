@@ -4,10 +4,30 @@
 
 * {
   font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.font-mono {
+.font-mono,
+[class*='font-mono'] {
   font-family: 'JetBrains Mono', monospace;
+  /* Tabular figures + slashed-zero so financial digits never shift width */
+  font-feature-settings: 'tnum' 1, 'zero' 1, 'cv11' 1;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* Hero numerics — tight tracking, tabular */
+.num-hero {
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Brand-tinted selection */
+::selection {
+  background: rgba(168, 85, 247, 0.4);
+  color: #ffffff;
 }
 
 html,
@@ -73,6 +93,32 @@ body {
 .scrollbar-hidden {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Card entry animation — subtle slide-up + fade */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-enter {
+  animation: card-enter 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Subtle moving scan-line on glass surfaces — barely perceptible HUD feel */
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
 }
 
 /* Glassmorphism shimmer accent */

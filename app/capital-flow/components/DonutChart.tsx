@@ -99,7 +99,7 @@ export default function DonutChart({
             </p>
           )}
           {centerValue && (
-            <p className="text-white text-2xl font-bold leading-none">
+            <p className="num-hero text-white text-2xl font-bold leading-none">
               {centerValue}
             </p>
           )}
