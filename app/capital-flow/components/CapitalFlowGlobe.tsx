@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import * as THREE from 'three'
+import { HUBS, type Hub } from '../data/hubs'
 
 // react-globe.gl is WebGL-only and must NOT be SSR'd
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false })
@@ -13,6 +14,31 @@ const BUMP_TEXTURE = '//unpkg.com/three-globe/example/img/earth-topology.png'
 export default function CapitalFlowGlobe() {
   const globeEl = useRef<any>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
+
+  // Tier-1 hubs get larger pulsing rings, tier-2 get smaller ones
+  const ringsData = useMemo(
+    () =>
+      HUBS.map((h) => ({
+        lat: h.lat,
+        lng: h.lng,
+        maxR: h.tier === 1 ? 5 : 3,
+        color: h.color,
+      })),
+    [],
+  )
+
+  // Basic point dots — placeholder visualisation until Layer 5 swaps
+  // these for HTML markers with icons
+  const pointsData = useMemo(
+    () =>
+      HUBS.map((h) => ({
+        lat: h.lat,
+        lng: h.lng,
+        size: h.tier === 1 ? 0.7 : 0.5,
+        color: h.color,
+      })),
+    [],
+  )
 
   // Track viewport size so the canvas matches the screen
   useEffect(() => {
@@ -103,6 +129,30 @@ export default function CapitalFlowGlobe() {
           showAtmosphere={true}
           atmosphereColor="#7744ff"
           atmosphereAltitude={0.18}
+          // Layer 3 — hubs as basic markers + pulsing rings.
+          // Layer 5 will replace points with HTML markers (icons, halos).
+          pointsData={pointsData}
+          pointLat={(d: any) => d.lat}
+          pointLng={(d: any) => d.lng}
+          pointAltitude={0.01}
+          pointRadius={(d: any) => d.size}
+          pointColor={(d: any) => d.color}
+          pointResolution={12}
+          ringsData={ringsData}
+          ringLat={(d: any) => d.lat}
+          ringLng={(d: any) => d.lng}
+          ringMaxRadius={(d: any) => d.maxR}
+          ringPropagationSpeed={2}
+          ringRepeatPeriod={1500}
+          ringAltitude={0.01}
+          ringColor={(d: any) => (t: number) => {
+            // hex -> rgba(...,1-t) so the ring fades as it expands
+            const hex = d.color.replace('#', '')
+            const r = parseInt(hex.slice(0, 2), 16)
+            const g = parseInt(hex.slice(2, 4), 16)
+            const b = parseInt(hex.slice(4, 6), 16)
+            return `rgba(${r}, ${g}, ${b}, ${1 - t})`
+          }}
         />
       )}
     </div>
